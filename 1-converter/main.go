@@ -10,7 +10,20 @@ const USD = "USD"
 const EUR = "EUR"
 const RUB = "RUB"
 
-var validCurrencies = []string{USD, EUR, RUB}
+var crossRates = map[string]map[string]float64{
+	USD: {
+		EUR: 0.92,
+		RUB: 85.19,
+	},
+	EUR: {
+		USD: 1.09,
+		RUB: 92.61,
+	},
+	RUB: {
+		USD: 0.012,
+		EUR: 0.011,
+	},
+}
 
 func main() {
 	currentCurrency, amount, targetCurrency := getUserInput()
@@ -24,10 +37,10 @@ func main() {
 
 func getUserInput() (string, float64, string) {
 	var currentCurrency string
-	fmt.Printf("Enter the current currency from %v: ", validCurrencies)
+	fmt.Printf("Enter the current currency from %v: ", getValidCurrencies())
 	fmt.Scan(&currentCurrency)
 	for !isCurrencyValid(currentCurrency) {
-		fmt.Printf("Invalid currency. Please enter the current currency from %v: ", validCurrencies)
+		fmt.Printf("Invalid currency. Please enter the current currency from %v: ", getValidCurrencies())
 		fmt.Scan(&currentCurrency)
 	}
 	currentCurrency = strings.ToUpper(currentCurrency)
@@ -41,10 +54,10 @@ func getUserInput() (string, float64, string) {
 	}
 
 	var targetCurrency string
-	fmt.Printf("Enter the desired currency from %v: ", validCurrencies)
+	fmt.Printf("Enter the desired currency from %v: ", getValidCurrencies())
 	fmt.Scan(&targetCurrency)
 	for !isCurrencyValid(targetCurrency) || targetCurrency == currentCurrency {
-		fmt.Printf("Invalid currency. Please enter the desired currency from %v: ", validCurrencies)
+		fmt.Printf("Invalid currency. Please enter the desired currency from %v: ", getValidCurrencies())
 		fmt.Scan(&targetCurrency)
 	}
 	targetCurrency = strings.ToUpper(targetCurrency)
@@ -53,7 +66,7 @@ func getUserInput() (string, float64, string) {
 }
 
 func isCurrencyValid(currency string) bool {
-	for _, valid := range validCurrencies {
+	for _, valid := range getValidCurrencies() {
 		if strings.EqualFold(currency, valid) {
 			return true
 		}
@@ -62,31 +75,17 @@ func isCurrencyValid(currency string) bool {
 }
 
 func convert(amount float64, initialCurrency, desiredCurrency string) (float64, error) {
-	const usdToEur = 0.92
-	const usdToRub = 85.19
-	eurToRub := usdToRub / usdToEur
-	switch initialCurrency {
-	case USD:
-		switch desiredCurrency {
-		case EUR:
-			return amount * usdToEur, nil
-		case RUB:
-			return amount * usdToRub, nil
-		}
-	case EUR:
-		switch desiredCurrency {
-		case USD:
-			return amount / usdToEur, nil
-		case RUB:
-			return amount * eurToRub, nil
-		}
-	case RUB:
-		switch desiredCurrency {
-		case USD:
-			return amount / usdToRub, nil
-		case EUR:
-			return amount / eurToRub, nil
-		}
+	value, exists := crossRates[initialCurrency][desiredCurrency]
+	if !exists {
+		return 0, errors.New("invalid currency pair")
 	}
-	return -1, errors.New("something went wrong")
+	return value * amount, nil
+}
+
+func getValidCurrencies() []string {
+	var validCurrencies []string
+	for currency := range crossRates {
+		validCurrencies = append(validCurrencies, currency)
+	}
+	return validCurrencies
 }
