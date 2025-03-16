@@ -10,24 +10,25 @@ const USD = "USD"
 const EUR = "EUR"
 const RUB = "RUB"
 
-var crossRates = map[string]map[string]float64{
-	USD: {
-		EUR: 0.92,
-		RUB: 85.19,
-	},
-	EUR: {
-		USD: 1.09,
-		RUB: 92.61,
-	},
-	RUB: {
-		USD: 0.012,
-		EUR: 0.011,
-	},
-}
+type CrossRates map[string]map[string]float64
 
 func main() {
-	currentCurrency, amount, targetCurrency := getUserInput()
-	result, err := convert(amount, currentCurrency, targetCurrency)
+	crossRates := CrossRates{
+		USD: {
+			EUR: 0.92,
+			RUB: 85.19,
+		},
+		EUR: {
+			USD: 1.09,
+			RUB: 92.61,
+		},
+		RUB: {
+			USD: 0.012,
+			EUR: 0.011,
+		},
+	}
+	currentCurrency, amount, targetCurrency := getUserInput(&crossRates)
+	result, err := convert(amount, currentCurrency, targetCurrency, &crossRates)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -35,12 +36,12 @@ func main() {
 	fmt.Printf("%.2f %s = %.2f %s\n", amount, currentCurrency, result, targetCurrency)
 }
 
-func getUserInput() (string, float64, string) {
+func getUserInput(crossRates *CrossRates) (string, float64, string) {
 	var currentCurrency string
-	fmt.Printf("Enter the current currency from %v: ", getValidCurrencies())
+	fmt.Printf("Enter the current currency from %v: ", getValidCurrencies(crossRates))
 	fmt.Scan(&currentCurrency)
-	for !isCurrencyValid(currentCurrency) {
-		fmt.Printf("Invalid currency. Please enter the current currency from %v: ", getValidCurrencies())
+	for !isCurrencyValid(currentCurrency, crossRates) {
+		fmt.Printf("Invalid currency. Please enter the current currency from %v: ", getValidCurrencies(crossRates))
 		fmt.Scan(&currentCurrency)
 	}
 	currentCurrency = strings.ToUpper(currentCurrency)
@@ -54,10 +55,10 @@ func getUserInput() (string, float64, string) {
 	}
 
 	var targetCurrency string
-	fmt.Printf("Enter the desired currency from %v: ", getValidCurrencies())
+	fmt.Printf("Enter the desired currency from %v: ", getValidCurrencies(crossRates))
 	fmt.Scan(&targetCurrency)
-	for !isCurrencyValid(targetCurrency) || targetCurrency == currentCurrency {
-		fmt.Printf("Invalid currency. Please enter the desired currency from %v: ", getValidCurrencies())
+	for !isCurrencyValid(targetCurrency, crossRates) || targetCurrency == currentCurrency {
+		fmt.Printf("Invalid currency. Please enter the desired currency from %v: ", getValidCurrencies(crossRates))
 		fmt.Scan(&targetCurrency)
 	}
 	targetCurrency = strings.ToUpper(targetCurrency)
@@ -65,8 +66,8 @@ func getUserInput() (string, float64, string) {
 	return currentCurrency, amount, targetCurrency
 }
 
-func isCurrencyValid(currency string) bool {
-	for _, valid := range getValidCurrencies() {
+func isCurrencyValid(currency string, crossRates *CrossRates) bool {
+	for _, valid := range getValidCurrencies(crossRates) {
 		if strings.EqualFold(currency, valid) {
 			return true
 		}
@@ -74,17 +75,17 @@ func isCurrencyValid(currency string) bool {
 	return false
 }
 
-func convert(amount float64, initialCurrency, desiredCurrency string) (float64, error) {
-	value, exists := crossRates[initialCurrency][desiredCurrency]
+func convert(amount float64, initialCurrency, desiredCurrency string, crossRates *CrossRates) (float64, error) {
+	value, exists := (*crossRates)[initialCurrency][desiredCurrency]
 	if !exists {
 		return 0, errors.New("invalid currency pair")
 	}
 	return value * amount, nil
 }
 
-func getValidCurrencies() []string {
+func getValidCurrencies(crossRates *CrossRates) []string {
 	var validCurrencies []string
-	for currency := range crossRates {
+	for currency := range *crossRates {
 		validCurrencies = append(validCurrencies, currency)
 	}
 	return validCurrencies
