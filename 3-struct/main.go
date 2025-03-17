@@ -5,49 +5,35 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"time"
+
+	"pferdina.com/3-struct/bins"
 )
 
-type Bin struct {
-	id        string
-	private   bool
-	createdAt time.Time
-	name      string
-}
-
 func main() {
-	binList := make([]Bin, 0)
+	binList := make([]bins.Bin, 0)
 
 	getUserInput(&binList)
 
 	for _, bin := range binList {
-		fmt.Println("------------")
-		fmt.Println(bin.id)
-		fmt.Println(bin.private)
-		fmt.Println(bin.createdAt)
-		fmt.Println(bin.name)
-		fmt.Println("------------")
+		bin.PrintBin()
 	}
 }
 
-func getUserInput(binList *[]Bin) {
-	bin := Bin{}
-
+func getUserInput(binList *[]bins.Bin) {
 	r := bufio.NewScanner(os.Stdin)
 
 	fmt.Println("Enter id: ")
 	r.Scan()
-	bin.id = r.Text()
+	id := r.Text()
 
-	bin.private = getPrivateField(r)
+	private := getPrivateField(r)
 
 	fmt.Println("Enter name: ")
 	r.Scan()
-	bin.name = r.Text()
+	name := r.Text()
 
-	bin.createdAt = time.Now()
-
-	*binList = append(*binList, bin)
+	bin := bins.NewBin(id, private, name)
+	*binList = append(*binList, *bin)
 }
 
 func getPrivateField(r *bufio.Scanner) bool {
