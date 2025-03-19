@@ -23,15 +23,14 @@ func main() {
 }
 
 func getUserInput() (string, float64, string) {
-	var currentCurrency string
-	fmt.Printf("Enter the current currency from %v: ", validCurrencies)
-	fmt.Scan(&currentCurrency)
-	for !isCurrencyValid(currentCurrency) {
-		fmt.Printf("Invalid currency. Please enter the current currency from %v: ", validCurrencies)
-		fmt.Scan(&currentCurrency)
-	}
-	currentCurrency = strings.ToUpper(currentCurrency)
+	currentCurrency := getValidCurrency()
+	amount := getValidAmount()
+	targetCurrency := getValidDesiredCurrency(currentCurrency)
 
+	return currentCurrency, amount, targetCurrency
+}
+
+func getValidAmount() float64 {
 	var amount float64
 	fmt.Print("Enter the amount: ")
 	fmt.Scan(&amount)
@@ -39,17 +38,28 @@ func getUserInput() (string, float64, string) {
 		fmt.Print("Invalid amount. Please enter the amount: ")
 		fmt.Scan(&amount)
 	}
+	return amount
+}
 
-	var targetCurrency string
-	fmt.Printf("Enter the desired currency from %v: ", validCurrencies)
-	fmt.Scan(&targetCurrency)
-	for !isCurrencyValid(targetCurrency) || targetCurrency == currentCurrency {
-		fmt.Printf("Invalid currency. Please enter the desired currency from %v: ", validCurrencies)
-		fmt.Scan(&targetCurrency)
+func getValidCurrency() string {
+	var inputCurrency string
+	fmt.Printf("Enter the current currency from %v: ", validCurrencies)
+	fmt.Scan(&inputCurrency)
+	for !isCurrencyValid(inputCurrency) {
+		fmt.Printf("Invalid currency. Please enter the current currency from %v: ", validCurrencies)
+		fmt.Scan(&inputCurrency)
 	}
-	targetCurrency = strings.ToUpper(targetCurrency)
+	inputCurrency = strings.ToUpper(inputCurrency)
+	return inputCurrency
+}
 
-	return currentCurrency, amount, targetCurrency
+func getValidDesiredCurrency(currentCurrency string) string {
+	desiredCurrency := getValidCurrency()
+	for desiredCurrency == currentCurrency {
+		fmt.Println("The desired currency cannot be the same as the current currency.")
+		desiredCurrency = getValidCurrency()
+	}
+	return desiredCurrency
 }
 
 func isCurrencyValid(currency string) bool {
