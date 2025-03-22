@@ -1,0 +1,23 @@
+{
+    "bins": [
+        {
+            "id": "фтвкун",
+            "private": true,
+            "createdAt": "2025-03-22T12:33:18.755551+03:00",
+            "name": "andrey"
+        },
+        {
+            "id": "another",
+            "private": false,
+            "createdAt": "2025-03-22T12:33:34.351285+03:00",
+            "name": "pferdina"
+        },
+        {
+            "id": "1",
+            "private": true,
+            "createdAt": "2025-03-22T12:39:53.08796+03:00",
+            "name": "andrey"
+        }
+    ],
+    "updatedAt": "2025-03-22T12:39:53.087993+03:00"
+}
