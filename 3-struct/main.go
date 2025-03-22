@@ -7,43 +7,53 @@ import (
 	"strconv"
 
 	"pferdina.com/3-struct/bins"
+	"pferdina.com/3-struct/storage"
 )
 
 func main() {
-	binList := make([]bins.Bin, 0)
+	storage := storage.NewStorage()
 
-	getUserInput(&binList)
-
-	for _, bin := range binList {
-		bin.PrintBin()
+	for {
+		action := getMenu()
+		switch action {
+		case 1:
+			getUserInput(storage)
+		case 5:
+			os.Exit(0)
+		}
 	}
 }
 
-func getUserInput(binList *[]bins.Bin) {
-	r := bufio.NewScanner(os.Stdin)
-
-	fmt.Println("Enter id: ")
-	r.Scan()
-	id := r.Text()
-
-	private := getPrivateField(r)
-
-	fmt.Println("Enter name: ")
-	r.Scan()
-	name := r.Text()
-
-	bin := bins.NewBin(id, private, name)
-	*binList = append(*binList, *bin)
+func getMenu() int {
+	fmt.Println("1. Add bin")
+	fmt.Println("5. Exit")
+	var action int
+	fmt.Scan(&action)
+	return action
 }
 
-func getPrivateField(r *bufio.Scanner) bool {
-	fmt.Println("Enter private: ")
+func getUserInput(storage *storage.Storage) {
+	id := promtInput("Enter id: ")
+	private := getPrivateField()
+	name := promtInput("Enter name: ")
+
+	bin := bins.NewBin(id, private, name)
+	storage.AddBin(bin)
+}
+
+func promtInput(message string) string {
+	fmt.Print(message)
+	r := bufio.NewScanner(os.Stdin)
 	r.Scan()
-	private, err := strconv.ParseBool(r.Text())
+	return r.Text()
+}
+
+func getPrivateField() bool {
+	input := promtInput("Enter private (true/false): ")
+	private, err := strconv.ParseBool(input)
 	for err != nil {
-		fmt.Println("Enter valid bool (true/false): ")
-		r.Scan()
-		private, err = strconv.ParseBool(r.Text())
+		input = promtInput("Enter valid bool (true/false): ")
+		private, err = strconv.ParseBool(input)
 	}
 	return private
 }
