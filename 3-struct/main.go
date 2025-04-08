@@ -38,6 +38,7 @@ func getUserInput(storage *storage.Storage) {
 	name := promtInput("Enter name: ")
 
 	bin := bins.NewBin(id, private, name)
+	fmt.Println("Bin created", bin)
 	storage.AddBin(bin)
 }
 

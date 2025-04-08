@@ -11,19 +11,21 @@ import (
 const storageFileName = "storage.json"
 
 type Storage struct {
-	Bins      []bins.Bin `json:"bins"`
-	UpdatedAt time.Time  `json:"updatedAt"`
+	files     files.IFiles
+	Bins      []bins.IBin `json:"bins"`
+	UpdatedAt time.Time   `json:"updatedAt"`
 }
 
-func (s *Storage) AddBin(bin *bins.Bin) error {
-	s.Bins = append(s.Bins, *bin)
+func (s *Storage) AddBin(bin bins.IBin) error {
+	s.Bins = append(s.Bins, bin)
 	s.UpdatedAt = time.Now()
 
 	data, err := json.Marshal(s)
 	if err != nil {
 		return err
 	}
-	err = files.WriteFile(data, storageFileName)
+	print(storageFileName, data)
+	err = s.files.WriteFile(data, storageFileName)
 	if err != nil {
 		return err
 	}
@@ -31,6 +33,7 @@ func (s *Storage) AddBin(bin *bins.Bin) error {
 }
 
 func NewStorage() *Storage {
+	files := files.NewFiles()
 	data, err := files.ReadFile(storageFileName)
 	if err != nil {
 		return newEmptyStorage()
@@ -45,7 +48,8 @@ func NewStorage() *Storage {
 
 func newEmptyStorage() *Storage {
 	return &Storage{
-		Bins:      make([]bins.Bin, 0),
+		Bins:      make([]bins.IBin, 0),
 		UpdatedAt: time.Now(),
+		files:     files.NewFiles(),
 	}
 }

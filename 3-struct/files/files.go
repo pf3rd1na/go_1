@@ -6,9 +6,16 @@ import (
 	"strings"
 )
 
+type IFiles interface {
+	WriteFile(data []byte, name string) error
+	ReadFile(name string) ([]byte, error)
+}
+
+type Files struct{}
+
 const jsonExtension = ".json"
 
-func WriteFile(data []byte, name string) error {
+func (f *Files) WriteFile(data []byte, name string) error {
 	file, err := os.Create(name)
 	if err != nil {
 		return err
@@ -18,7 +25,7 @@ func WriteFile(data []byte, name string) error {
 	return nil
 }
 
-func ReadFile(name string) ([]byte, error) {
+func (f *Files) ReadFile(name string) ([]byte, error) {
 	if !checkFileExtenstion(name, jsonExtension) {
 		return nil, errors.New("file must be a json file")
 	}
@@ -31,4 +38,8 @@ func ReadFile(name string) ([]byte, error) {
 
 func checkFileExtenstion(name string, ext string) bool {
 	return strings.HasSuffix(name, ext)
+}
+
+func NewFiles() *Files {
+	return &Files{}
 }

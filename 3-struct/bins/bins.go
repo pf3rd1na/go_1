@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+type IBin interface {
+	PrintBin()
+}
+
 type Bin struct {
 	Id        string    `json:"id"`
 	Private   bool      `json:"private"`
