@@ -15,20 +15,24 @@ const MED = "MED"
 
 var validOperations = []string{AVG, SUM, MED}
 
+var operationsMap = map[string]func([]float64) float64{
+	AVG: average,
+	SUM: sum,
+	MED: median,
+}
+
 func main() {
 	operation, numbers, err := getUserInput()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	switch operation {
-	case AVG:
-		fmt.Printf("Average: %.2f\n", average(numbers))
-	case SUM:
-		fmt.Printf("Sum: %.2f\n", sum(numbers))
-	case MED:
-		fmt.Printf("Median: %.2f\n", median(numbers))
+	function := operationsMap[operation]
+	if function == nil {
+		return
 	}
+	result := function(numbers)
+	fmt.Printf("%v: %.2f\n", operation, result)
 }
 
 func getUserInput() (string, []float64, error) {
