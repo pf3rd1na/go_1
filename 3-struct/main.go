@@ -6,11 +6,14 @@ import (
 	"os"
 	"strconv"
 
+	"pferdina.com/3-struct/api"
 	"pferdina.com/3-struct/bins"
 	"pferdina.com/3-struct/storage"
 )
 
 func main() {
+	api.GetEnv()
+
 	storage := storage.NewStorage()
 
 	for {
