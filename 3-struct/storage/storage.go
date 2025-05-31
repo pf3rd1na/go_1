@@ -24,7 +24,6 @@ func (s *Storage) AddBin(bin bins.IBin) error {
 	if err != nil {
 		return err
 	}
-	print(storageFileName, data)
 	err = s.files.WriteFile(data, storageFileName)
 	if err != nil {
 		return err
