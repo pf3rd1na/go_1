@@ -6,11 +6,14 @@ import (
 	"os"
 	"strconv"
 
+	"pferdina.com/3-struct/api"
 	"pferdina.com/3-struct/bins"
 	"pferdina.com/3-struct/storage"
 )
 
 func main() {
+	api.GetEnv()
+
 	storage := storage.NewStorage()
 
 	for {
@@ -38,6 +41,7 @@ func getUserInput(storage *storage.Storage) {
 	name := promtInput("Enter name: ")
 
 	bin := bins.NewBin(id, private, name)
+	fmt.Println("Bin created", bin)
 	storage.AddBin(bin)
 }
 
