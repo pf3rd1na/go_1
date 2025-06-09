@@ -20,6 +20,7 @@ func NewConfig() *Config {
 	if !exists {
 		fmt.Println("Environment variable 'key' not set")
 	}
+	fmt.Println("key:", key)
 	return &Config{
 		Key: key,
 	}
