@@ -7,15 +7,10 @@ import (
 	"io"
 	"net/http"
 
-	"pferdina.com/3-struct/config"
 	"pferdina.com/3-struct/storage"
 )
 
 const jsonbinBaseURL = "https://api.jsonbin.io/v3/b"
-
-func GetEnv() {
-	_ = config.NewConfig()
-}
 
 func CreateBin(storage *storage.Storage, binName string) {
 	fmt.Println("Saving bin:", binName)

@@ -11,8 +11,13 @@ type Config struct {
 	Key string `json:"key"`
 }
 
-func NewConfig() *Config {
-	err := godotenv.Load("config/.env")
+func NewConfig(path *string) *Config {
+	var err error
+	if path != nil {
+		err = godotenv.Load(*path)
+	} else {
+		err = godotenv.Load("config/.env")
+	}
 	if err != nil {
 		fmt.Println("Error loading .env file")
 	}

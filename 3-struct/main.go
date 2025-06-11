@@ -15,8 +15,7 @@ import (
 )
 
 func main() {
-	api.GetEnv()
-	cfg := config.NewConfig()
+	cfg := config.NewConfig(nil)
 	storage := storage.NewStorage()
 
 	// Command-line flags
