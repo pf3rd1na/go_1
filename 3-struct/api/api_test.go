@@ -5,6 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"pferdina.com/3-struct/bins"
 	"pferdina.com/3-struct/config"
 )
@@ -12,9 +15,7 @@ import (
 func getAPIKey(t *testing.T) string {
 	cfgPath := "../config/.env"
 	key := config.NewConfig(&cfgPath).Key
-	if key == "" {
-		t.Fatal("API key not set in .env file")
-	}
+	require.NotEmpty(t, key, "API key not set in .env file")
 	return key
 }
 
@@ -29,16 +30,11 @@ func TestCreateBinAPI(t *testing.T) {
 	// Act
 	binID, err := CreateBinAPI(apiKey, bin)
 	// Assert
-	if err != nil {
-		t.Fatalf("CreateBinAPI failed: %v", err)
-	}
-	if binID == "" {
-		t.Fatal("CreateBinAPI returned empty bin ID")
-	}
+	require.NoError(t, err, "CreateBinAPI failed")
+	assert.NotEmpty(t, binID, "CreateBinAPI returned empty bin ID")
 	// Clean up
-	if err := DeleteBinAPI(apiKey, binID); err != nil {
-		t.Errorf("Cleanup failed: %v", err)
-	}
+	err = DeleteBinAPI(apiKey, binID)
+	assert.NoError(t, err, "Cleanup failed")
 }
 
 func TestUpdateBinAPI(t *testing.T) {
@@ -50,20 +46,15 @@ func TestUpdateBinAPI(t *testing.T) {
 		Name:      "test-bin-update",
 	}
 	binID, err := CreateBinAPI(apiKey, bin)
-	if err != nil {
-		t.Fatalf("Failed to create bin for update: %v", err)
-	}
+	require.NoError(t, err, "Failed to create bin for update")
 	bin.Name = "test-bin-updated"
 	// Act
 	err = UpdateBinAPI(apiKey, binID, bin)
 	// Assert
-	if err != nil {
-		t.Fatalf("UpdateBinAPI failed: %v", err)
-	}
+	require.NoError(t, err, "UpdateBinAPI failed")
 	// Clean up
-	if err := DeleteBinAPI(apiKey, binID); err != nil {
-		t.Errorf("Cleanup failed: %v", err)
-	}
+	err = DeleteBinAPI(apiKey, binID)
+	assert.NoError(t, err, "Cleanup failed")
 }
 
 func TestGetBinAPI(t *testing.T) {
@@ -75,29 +66,20 @@ func TestGetBinAPI(t *testing.T) {
 		Name:      "test-bin-get",
 	}
 	binID, err := CreateBinAPI(apiKey, bin)
-	if err != nil {
-		t.Fatalf("Failed to create bin for get: %v", err)
-	}
+	require.NoError(t, err, "Failed to create bin for get")
 	// Act
 	data, err := GetBinAPI(apiKey, binID)
 	// Assert
-	if err != nil {
-		t.Fatalf("GetBinAPI failed: %v", err)
-	}
+	require.NoError(t, err, "GetBinAPI failed")
 	var got struct {
 		Record bins.Bin `json:"record"`
 	}
 	err = json.Unmarshal(data, &got)
-	if err != nil {
-		t.Fatalf("Failed to unmarshal bin: %v", err)
-	}
-	if got.Record.Name != bin.Name {
-		t.Errorf("Expected name %s, got %s", bin.Name, got.Record.Name)
-	}
+	require.NoError(t, err, "Failed to unmarshal bin")
+	assert.Equal(t, bin.Name, got.Record.Name, "Expected name %s, got %s", bin.Name, got.Record.Name)
 	// Clean up
-	if err := DeleteBinAPI(apiKey, binID); err != nil {
-		t.Errorf("Cleanup failed: %v", err)
-	}
+	err = DeleteBinAPI(apiKey, binID)
+	assert.NoError(t, err, "Cleanup failed")
 }
 
 func TestDeleteBinAPI(t *testing.T) {
@@ -109,18 +91,12 @@ func TestDeleteBinAPI(t *testing.T) {
 		Name:      "test-bin-delete",
 	}
 	binID, err := CreateBinAPI(apiKey, bin)
-	if err != nil {
-		t.Fatalf("Failed to create bin for delete: %v", err)
-	}
+	require.NoError(t, err, "Failed to create bin for delete")
 	// Act
 	err = DeleteBinAPI(apiKey, binID)
 	// Assert
-	if err != nil {
-		t.Fatalf("DeleteBinAPI failed: %v", err)
-	}
+	require.NoError(t, err, "DeleteBinAPI failed")
 	// Try to get deleted bin (should fail)
 	_, err = GetBinAPI(apiKey, binID)
-	if err == nil {
-		t.Error("Expected error when getting deleted bin, got nil")
-	}
+	assert.Error(t, err, "Expected error when getting deleted bin, got nil")
 }
